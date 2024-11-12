@@ -1,4 +1,4 @@
-import {startStopTimer, resetTimer, updatePopup} from './timer.js';
+import {startStopTimer, resetTimer, updatePopup} from '../components/timer.js';
 
 
 chrome.runtime.onMessage.addListener(async (request, sender, sendResponse) => {
