@@ -1,0 +1,15 @@
+{
+    "manifest_version": 3,
+    "name": "Study Genie",
+    "version": "1.0.0",
+    "description": "Study tool that promotes study efficiency and provides access to advanced learning tools.",
+    "action": {
+        "default_title": "Study Genie",
+        "default_popup": "popup.html"
+    },
+    "permissions": ["alarms", "notifications", "storage"],
+    "background": {
+        "service_worker": "background.js",
+        "type": "module"
+    }
+}
