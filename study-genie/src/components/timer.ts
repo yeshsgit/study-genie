@@ -15,33 +15,43 @@ function startStopTimer() {
 }
 
 function startTimer() {
+    const startTime = Date.now();
     chrome.storage.local.set({
-        isRunning: true 
+        startTime,
+        isRunning: true
     });
+
     console.log("Timer started!");
 }
 
 function stopTimer() {
-    chrome.storage.local.set({
-        isRunning: false 
+    chrome.storage.local.get(['startTime', 'totalTime'], (res) => {
+        if (res.startTime) {
+            // const timeRemaining = getTimeRemaining(res.startTime, res.totalTime);
+            chrome.storage.local.set({
+                isRunning: false,
+                // timeRemaining,
+                startTime: undefined
+            });
+        }
     });
     console.log("Timer stopped!");
 }
 
 function resetTimer() {
     chrome.storage.local.set({
-        timer: timerLongPeriod,
-        isRunning: false 
+        startTime: undefined,
+        isRunning: false,
+        totalTime: timerLongPeriod,
+        timeRemaining: timerLongPeriod
     });
-    updatePopup(timerLongPeriod)
+    updatePopup(timerLongPeriod);
     console.log("Timer reset!");
 }
 
-function updatePopup(timeLeft: any) {
-    let minutes_raw = Math.floor(timeLeft / 60);
-    let seconds_raw = timeLeft % 60;
-    let minutes = minutes_raw < 10 ? '0' + minutes_raw : minutes_raw;
-    let seconds = seconds_raw < 10 ? '0' + seconds_raw : seconds_raw;
+function updatePopup(timeLeft: number) {
+    const minutes = Math.floor(timeLeft / 60).toString().padStart(2, '0');
+    const seconds = (timeLeft % 60).toString().padStart(2, '0');
     chrome.runtime.sendMessage({timer: `${minutes}:${seconds}`});
 }
 
@@ -50,25 +60,6 @@ chrome.storage.local.get(["timer", "isRunning"], (res) => {
         timer: "timer" in res ? res.timer : timerLongPeriod,
         isRunning: "isRunning" in res ? res.isRunning : false,
     });
-});
-
-chrome.alarms.create("pomodoroTimer", {
-    periodInMinutes: 1/60,
-});
-
-chrome.alarms.onAlarm.addListener((alarm) => {
-    if (alarm.name === "pomodoroTimer") {
-        chrome.storage.local.get(["timer", "isRunning"], (res) => {
-            if (res.isRunning && res.timer > 0) {
-                let timer = res.timer - 1;
-                updatePopup(timer)
-                console.log(timer)
-                chrome.storage.local.set({
-                    timer,
-                });
-            }
-        });
-    }
 });
 
 export { startStopTimer, resetTimer,updatePopup };

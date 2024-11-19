@@ -27,6 +27,7 @@ function copyManifest() {
 
 export default defineConfig({
   build: {
+    target: 'chrome88',
     outDir: 'dist',
     minify: false,
     sourcemap: true,
