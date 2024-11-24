@@ -125,6 +125,66 @@ async function generateSummary() {
   }
 }
 
+async function generateDefinitions() {
+  const textElement = document.getElementById('studyText') as HTMLTextAreaElement;
+  const text = textElement?.value;
+  if (!text) {
+    showError("Please enter some text to analyze for definitions");
+    return;
+  }
+
+  const prompt = `Extract a list of 7 unique or uncommon keywords or terms from the following paragraph. For each keyword, provide a short and concise definition or explanation. Format the output as "keyword: definition".
+  Paragraph:
+  ${text}`;
+
+  try {
+    showLoading();
+    const result = await aiSession.prompt(prompt);
+    const dictionary = parseDefinitions(result);
+    console.log(dictionary)
+    displayDefinitions(dictionary);
+  } catch (error: any) {
+    showError("Failed to generate definitions: " + error.message);
+  }
+}
+
+// function parseDefinitions(response: string): Record<string, string> {
+//   const dictionary: Record<string, string> = {};
+//   const lines = response.split('\n'); // Split response into lines.
+
+//   for (const line of lines) {
+//     const [keyword, ...definitionParts] = line.split(':'); // Split at the first colon.
+//     if (keyword && definitionParts.length) {
+//       const definition = definitionParts.join(':').trim(); // Rejoin the definition in case it contains colons.
+//       dictionary[keyword.trim()] = definition;
+//     }
+//   }
+
+//   return dictionary;
+// }
+
+function parseDefinitions(response: string): Record<string, string> {
+  const dictionary: Record<string, string> = {};
+  const lines = response.split('\n'); // Split response into lines.
+
+  for (const line of lines) {
+    // Remove all '*' characters from the line.
+    const cleanedLine = line.replace(/\*/g, '').trim();
+
+    // Only process lines that contain a colon (:) and are not empty after cleaning.
+    if (cleanedLine.includes(':')) {
+      const [keyword, ...definitionParts] = cleanedLine.split(':'); // Split at the first colon.
+      if (keyword && definitionParts.length > 0) {
+        const definition = definitionParts.join(':').trim(); // Rejoin the definition in case it contains colons.
+        dictionary[keyword.trim()] = definition;
+      }
+    }
+  }
+
+  return dictionary;
+}
+
+
 function displayFlashcards(flashcards: any[]) {
   const resultsDiv = document.getElementById('results');
   if (!resultsDiv) return;
@@ -166,6 +226,23 @@ function displaySummary(summary: string) {
   `;
 }
 
+function displayDefinitions(dictionary: Record<string, string>) {
+  const resultsDiv = document.getElementById('results');
+  if (!resultsDiv) return;
+
+  // Create a formatted HTML output for the dictionary
+  const formattedOutput = Object.entries(dictionary)
+    .map(([keyword, definition]) => `<strong>${keyword}</strong>: ${definition}`)
+    .join('<br>');
+
+  resultsDiv.innerHTML = `
+    <div class="definitions">
+      <h3>Definitions</h3>
+      ${formattedOutput}
+    </div>
+  `;
+}
+
 function showError(message: string) {
   const errorDiv = document.getElementById('error');
   if (!errorDiv) return;
@@ -187,4 +264,4 @@ function showLoading() {
 }
 
 
-export { generateFlashcards, generateQuestions, generateSummary, initAI };
+export { generateFlashcards, generateQuestions, generateSummary, generateDefinitions, initAI };
