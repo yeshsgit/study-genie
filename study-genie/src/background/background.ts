@@ -1,16 +1,57 @@
 import {startStopTimer, resetTimer } from '../components/timer.ts';
 
+interface AppState {
+    highlightedText: string;
+}
 
-chrome.runtime.onMessage.addListener(async (request) => {
-    if (request.command === 'start/stop') {
+let appState: AppState = {
+    highlightedText: ''
+};
+
+chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
+    if (message.command === 'start/stop') {
         startStopTimer();
     }
-    else if (request.command === 'reset') {
+    else if (message.command === 'reset') {
         resetTimer();
     }
-    return true
+
+    if (message.type === 'aiCommand') {
+        appState.highlightedText = message.selectedText
+        if (sender.tab?.id) {
+            sendResponse({ response: `AI command: ${message.aiCommand}\n, Text: ${message.selectedText}` });
+
+            await chrome.sidePanel.open({tabId: sender.tab.id })
+
+            setTimeout(() => {
+                chrome.runtime.sendMessage({
+                    type: "sidepanelCommand",
+                    command: message.aiCommand,
+                    selectedText: message.selectedText
+                })
+            }, 500)
+            
+
+        } else {
+            sendResponse({ response: "Command failed tabid does not exist." });
+        }
+    }
+
+    if (message.type === 'highlightedText') {
+        appState.highlightedText = message.selectedText;
+        chrome.runtime.sendMessage({
+            type: "sidepanelCommand",
+            command: "updateSidepanelSelectedText",
+            selectedText: message.selectedText
+        })
+        if (sender.tab?.id) {
+            sendResponse({ response: `Highlighted text updated to: ${message.selectedText}` });
+        }
+    }
+    return true;
 });
 
+// Timer functionality
 const timerLongPeriod = 60 * 25
 
 interface TimerState {
@@ -33,6 +74,12 @@ chrome.storage.local.get(["startTime", "isRunning", "totalTime", "timeRemaining"
         totalTime: res.totalTime || timerLongPeriod,
         timeRemaining: res.timeRemaining || timerLongPeriod
     };
+    chrome.storage.local.set({
+        startTime: state.startTime,
+        isRunning: state.isRunning,
+        totalTime: state.totalTime,
+        timeRemaining: state.timeRemaining
+    })
 
     if (state.isRunning && state.startTime) {
         const timeRemaining = getTimeRemaining(state.startTime, state.totalTime);

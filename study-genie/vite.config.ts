@@ -1,6 +1,30 @@
 import { defineConfig } from 'vite';
 import { resolve } from 'path';
 import fs from 'fs';
+import path from 'path';
+
+function copyDir(src: string, dest: string) {
+  // Create destination directory
+  if (!fs.existsSync(dest)) {
+    fs.mkdirSync(dest, { recursive: true });
+  }
+
+  // Read directory contents
+  const entries = fs.readdirSync(src, { withFileTypes: true });
+
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+
+    if (entry.isDirectory()) {
+      // Recursively copy directory
+      copyDir(srcPath, destPath);
+    } else {
+      // Copy file
+      fs.copyFileSync(srcPath, destPath);
+    }
+  }
+}
 
 function copyManifest() {
   return {
@@ -11,15 +35,7 @@ function copyManifest() {
       // Copy assets if they exist
       const assetsDir = 'src/assets';
       if (fs.existsSync(assetsDir)) {
-        if (!fs.existsSync('dist/assets')) {
-          fs.mkdirSync('dist/assets', { recursive: true });
-        }
-        fs.readdirSync(assetsDir).forEach(file => {
-          fs.copyFileSync(
-            `${assetsDir}/${file}`,
-            `dist/assets/${file}`
-          );
-        });
+        copyDir(assetsDir, "dist/assets")
       }
     }
   };
@@ -35,6 +51,8 @@ export default defineConfig({
       input: {
         // Include both the HTML and the script
         popup: resolve(__dirname, 'popup.html'),
+        sidepanel: resolve(__dirname, 'side-panel.html'),
+        content: resolve(__dirname, 'src/content/updated-content.ts'),
         background: resolve(__dirname, 'src/background/background.ts'),
       },
       output: {
