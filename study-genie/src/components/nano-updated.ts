@@ -152,112 +152,6 @@ function renderFlashcards(flashcards: Record<string, string>) {
   updateFlashcard(currentIndex);
 }
 
-
-
-
-// function renderFlashcards(flashcards: Record<string, string>) {
-//   const resultsDiv = document.getElementById("results");
-//   if (!resultsDiv) return;
-
-//   resultsDiv.innerHTML = ""; // Clear any existing content
-
-//   const flashcardArray = Object.entries(flashcards); // Convert dictionary to an array
-//   let currentIndex = 0;
-
-//   // Function to update the displayed flashcard
-//   function updateFlashcard(index: number) {
-//     const [front, back] = flashcardArray[index];
-//     if (!resultsDiv) return;
-//     resultsDiv.innerHTML = `
-//       <div class="flashcard">
-//         <div class="flashcard-inner">
-//           <div class="flashcard-front">${front}</div>
-//           <div class="flashcard-back">${back}</div>
-//         </div>
-//       </div>
-//       <div class="flashcard-navigation">
-//         <button id="prevBtn" ${index === 0 ? "disabled" : ""}>Previous</button>
-//         <span>${index + 1} / ${flashcardArray.length}</span>
-//         <button id="nextBtn" ${
-//           index === flashcardArray.length - 1 ? "disabled" : ""
-//         }>Next</button>
-//       </div>
-//     `;
-
-//     // Add flipping functionality
-//     const flashcard = resultsDiv.querySelector(".flashcard");
-//     flashcard?.addEventListener("click", () => {
-//       flashcard.classList.toggle("flipped");
-//     });
-
-//     // Add navigation event listeners
-//     document.getElementById("prevBtn")?.addEventListener("click", () => {
-//       if (currentIndex > 0) {
-//         currentIndex--;
-//         updateFlashcard(currentIndex);
-//       }
-//     });
-
-//     document.getElementById("nextBtn")?.addEventListener("click", () => {
-//       if (currentIndex < flashcardArray.length - 1) {
-//         currentIndex++;
-//         updateFlashcard(currentIndex);
-//       }
-//     });
-//   }
-
-//   // Initialize with the first flashcard
-//   updateFlashcard(currentIndex);
-// }
-
-
-
-
-
-
-
-// async function generateFlashcards(text: string) {
-//   if (!text) {
-//     showError("Please enter some study material");
-//     return;
-//   }
-
-//   const prompt = `Your goal is to generate 5 concise flashcards from the provided text.
-// Format each flashcard as a JSON object with two properties: "front" (containing a question or keyword) and "back" (containing a brief answer or definition). 
-// Output all flashcards as a list of JSON objects.
-
-// User: "Waves."
-// Response:
-// [
-//   {
-//     "front": "What are waves?",
-//     "back": "Waves are oscillations or vibrations about a rest position, transferring energy between stores."
-//   },
-//   {
-//     "front": "What is the difference between longitudinal and transverse waves?",
-//     "back": "In longitudinal waves, vibrations are parallel to wave travel direction. In transverse waves, they are at right angles."
-//   },
-//   {
-//     "front": "What do mechanical waves require to travel?",
-//     "back": "Mechanical waves require a medium (solid, liquid, or gas) to travel through."
-//   }
-// ]
-
-// REMEMBER you must only return a list of json objects, nothing else.
-
-// Now, create 5 flashcards based on this text:
-// ${text}`;
-
-//   try {
-//     showLoading();
-//     const result = await aiSession.prompt(prompt);
-//     const flashcards = JSON.parse(result);
-//     displayFlashcards(flashcards);
-//   } catch (error: any) {
-//     showError("Failed to generate flashcards: " + error.message);
-//   }
-// }
-
 async function generateQuestions(text: string) {
   if (!text) {
     showError("Please enter some study material");
@@ -329,21 +223,6 @@ async function generateSummary(text: string) {
     showError("Failed to generate summary: " + error.message);
   }
 }
-
-// function displayFlashcards(flashcards: any[]) {
-//   const resultsDiv = document.getElementById('results');
-//   if (!resultsDiv) return;
-  
-//   resultsDiv.innerHTML = '';
-//   flashcards.forEach((card, index) => {
-//     resultsDiv.innerHTML += `
-//       <div class="flashcard">
-//         <div class="front">${index + 1}. ${card.front}</div>
-//         <div class="back">${card.back}</div>
-//       </div>
-//     `;
-//   });
-// }
 
 function displayQuestions(questions: any[]) {
   const resultsDiv = document.getElementById('results');
