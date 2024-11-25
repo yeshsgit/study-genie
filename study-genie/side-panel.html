@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Genie</title>
+    <link rel="stylesheet" href="src/styles/sidepanel-style.css">
+</head>
+<body>
+    <h1>Study Genie</h1>
+
+    <!-- Timer Section -->
+    <div class="tab-content">
+        <div class="timer-container">
+          <div class="timer-preview" id="timer-preview">
+            <span id="minutes">25</span>:<span id="seconds">00</span>
+        </div>
+
+          <div class="timer-controls" id="timer-controls">
+            <button id="start-stop-timer-btn">Start/Stop Timer</button>
+            <button id="reset-timer-btn">Reset Timer</button>
+            <button id="minimise-timer-btn">Minimise</button>
+          </div>
+        </div>
+      </div>
+
+    <div class="tab-content active" id="ai-tools-section">
+        <div class="ai-container">
+            <div id="selectedText"></div>
+            <div id="results"></div>
+            <div id="error" class="error-message"></div>
+            <div id="status" class="status-text"></div>
+
+            <div class="ai-button-group">
+                <button id="generateFlashcards">Flashcards</button>
+                <button id="generateQuestions">Practice Questions</button>
+                <button id="generateSummary">Summary</button>
+            </div>
+        </div>
+    </div>
+
+</body>
+<script src="src/side-panel/side-panel.ts" type="module"></script>
+</html>

@@ -93,6 +93,10 @@ h1 {
   margin-bottom: 12px;
 }
 
+.selected-text {
+  color: #FEE2E2;
+}
+
 .input-section {
   margin-bottom: 16px;
 }

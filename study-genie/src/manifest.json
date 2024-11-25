@@ -5,11 +5,33 @@
     "description": "Study tool that promotes study efficiency and provides access to advanced learning tools.",
     "action": {
         "default_title": "Study Genie",
-        "default_popup": "popup.html"
+        "default_icon": {
+          "16": "assets/images/full-res-icon.png",
+          "24": "assets/images/full-res-icon.png",
+          "32": "assets/images/full-res-icon.png"
+    }
     },
-    "permissions": ["alarms", "notifications", "storage"],
+    "side_panel": {
+      "default_path": "side-panel.html"
+    },
+    "permissions": [
+      "alarms",
+      "notifications",
+      "storage",
+      "contextMenus",
+      "scripting",
+      "activeTab",
+      "sidePanel"
+    ],
+    "host_permissions": ["<all_urls>"],
     "background": {
         "service_worker": "background.js",
         "type": "module"
+    },
+    "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
     }
+  ]
 }
