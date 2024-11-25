@@ -50,9 +50,8 @@ export default defineConfig({
     rollupOptions: {
       input: {
         // Include both the HTML and the script
-        popup: resolve(__dirname, 'popup.html'),
         sidepanel: resolve(__dirname, 'side-panel.html'),
-        content: resolve(__dirname, 'src/content/updated-content.ts'),
+        content: resolve(__dirname, 'src/content/content.ts'),
         background: resolve(__dirname, 'src/background/background.ts'),
       },
       output: {

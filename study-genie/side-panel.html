@@ -9,17 +9,33 @@
 <body>
     <h1>Study Genie</h1>
 
-    <div class="ai-container">
-        <div id="status" class="status-text"></div>
+    <!-- Timer Section -->
+    <div class="tab-content">
+        <div class="timer-container">
+          <div class="timer-preview" id="timer-preview">
+            <span id="minutes">25</span>:<span id="seconds">00</span>
+        </div>
 
-        <div id="selectedText"></div>
-        <div id="results"></div>
-        <div id="error" class="error-message"></div>
+          <div class="timer-controls" id="timer-controls">
+            <button id="start-stop-timer-btn">Start/Stop Timer</button>
+            <button id="reset-timer-btn">Reset Timer</button>
+            <button id="minimise-timer-btn">Minimise</button>
+          </div>
+        </div>
+      </div>
 
-        <div class="ai-button-group">
-            <button id="generateFlashcards">Flashcards</button>
-            <button id="generateQuestions">Practice Questions</button>
-            <button id="generateSummary">Summary</button>
+    <div class="tab-content active" id="ai-tools-section">
+        <div class="ai-container">
+            <div id="selectedText"></div>
+            <div id="results"></div>
+            <div id="error" class="error-message"></div>
+            <div id="status" class="status-text"></div>
+
+            <div class="ai-button-group">
+                <button id="generateFlashcards">Flashcards</button>
+                <button id="generateQuestions">Practice Questions</button>
+                <button id="generateSummary">Summary</button>
+            </div>
         </div>
     </div>
 

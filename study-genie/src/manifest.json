@@ -5,7 +5,6 @@
     "description": "Study tool that promotes study efficiency and provides access to advanced learning tools.",
     "action": {
         "default_title": "Study Genie",
-        "default_popup": "popup.html",
         "default_icon": {
           "16": "assets/images/full-res-icon.png",
           "24": "assets/images/full-res-icon.png",

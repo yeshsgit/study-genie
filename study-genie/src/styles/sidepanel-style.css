@@ -94,14 +94,14 @@ h1 {
     padding: 8px 16px;
     border: none;
     border-radius: 6px;
-    background-color: #46e569;
+    background-color: #2da54b;
     color: white;
     cursor: pointer;
     transition: background-color 0.2s;
   }
   
   button:hover {
-    background-color: #38cab2;
+    background-color: #2ea692;
   }
 
   /* Flashcard */
@@ -173,6 +173,25 @@ h1 {
     background: #0056b3;
   }
 
+/* Timer */
+.timer-preview {
+    cursor: pointer; 
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 40px;
+    font-weight: bold;
+    color: #000000;
+    margin-bottom: 24px;
+    
+  }
+
+#timer-controls {
+    display: none;
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
 
 /* Responsive Design */
 @media (max-width: 600px) {

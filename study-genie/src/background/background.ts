@@ -8,6 +8,12 @@ let appState: AppState = {
     highlightedText: ''
 };
 
+chrome.action.onClicked.addListener((tab) => {
+    if (tab.id) {
+        chrome.sidePanel.open({tabId: tab.id})
+    }
+})
+
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     if (message.command === 'start/stop') {
         startStopTimer();
