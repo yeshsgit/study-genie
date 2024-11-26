@@ -38,6 +38,42 @@ chrome.runtime.onMessage.addListener((message) => {
     }
 });
 
+const downloadButton = document.getElementById('downloadButton') as HTMLButtonElement | null;
+
+if (downloadButton) {
+  downloadButton.addEventListener('click', downloadContent);
+}
+// Function to download the content
+function downloadContent(): void {
+  const resultDiv = document.getElementById('results') as HTMLElement | null;
+  if (!resultDiv) {
+    alert('Result div not found!');
+    return;
+  }
+  const content = resultDiv.textContent || resultDiv.innerText;
+  if (!content.trim()) {
+    alert('No content available to download!');
+    return;
+  }
+  // Get the current date and time
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-'); // Format timestamp
+  // Create a blob with the content
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  // Create a temporary anchor element
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `flashcards_${timestamp}.txt`;
+  // Trigger the download
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Revoke the object URL
+  URL.revokeObjectURL(url);
+}
+
+
 // Event listeners for AI buttons
 if (flashcardsBtn) {
     flashcardsBtn.addEventListener('click', () => handleFlashcardsEvent(selectedText));
@@ -195,8 +231,6 @@ function updateTime() {
       if (!timeMinutes) return;
       const timeSeconds = document.getElementById("seconds");
       if (!timeSeconds) return;
-  
-      // console.log(`time remaining: ${res.timeRemaining}`)
   
       let timeLeft: number;
       if (res.isRunning && res.startTime) {
