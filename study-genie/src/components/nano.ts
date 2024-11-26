@@ -119,6 +119,9 @@ function renderFlashcards(flashcards: Record<string, string>) {
           index === flashcardArray.length - 1 ? "disabled" : ""
         }>Next</button>
       </div>
+      <div class="flashcard-download">
+        <button id="downloadBtn">Download</button>
+      </div>  
     `;
 
     // Add flipping functionality
@@ -132,6 +135,7 @@ function renderFlashcards(flashcards: Record<string, string>) {
     // Add navigation event listeners
     const prevBtn = document.getElementById("prevBtn");
     const nextBtn = document.getElementById("nextBtn");
+    const downloadBtn = document.getElementById("downloadBtn")
     
     prevBtn?.addEventListener("click", () => {
       if (currentIndex > 0) {
@@ -146,10 +150,37 @@ function renderFlashcards(flashcards: Record<string, string>) {
         updateFlashcard(currentIndex);
       }
     });
+
+    downloadBtn?.addEventListener("click", () => {
+      downloadContent(flashcards)
+    })
   }
 
   // Initialize with the first flashcard
   updateFlashcard(currentIndex);
+}
+
+function downloadContent(flashcards: any): void {
+
+  const content = Object.entries(flashcards)
+    .map(([question, answer]) => `${question}\t${answer}`)
+    .join("\n");
+  // Get the current date and time
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.]/g, '-'); // Format timestamp
+  // Create a blob with the content
+  const blob = new Blob([content], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  // Create a temporary anchor element
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `flashcards_${timestamp}.txt`;
+  // Trigger the download
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  // Revoke the object URL
+  URL.revokeObjectURL(url);
 }
 
 async function generateQuestions(text: string) {
@@ -273,6 +304,5 @@ function showLoading() {
   
   resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
 }
-
 
 export { generateFlashcards, generateQuestions, generateSummary, initAI, initSummariser };
