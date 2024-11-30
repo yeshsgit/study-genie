@@ -1,25 +1,35 @@
 import { initAI, initSummariser, generateSummary, generateFlashcards, generateQuestions } from '../components/nano.ts';
+import { showError, showLoading, displaySummary, displayFlashcards, displayQuestions } from './update-ui.ts';
 
-initSummariser()
-initAI()
+// Global variables
+let isSummariserReady: boolean | void = false;
+let isAIReady: boolean | void = false;
 let selectedText: string | null = null;
+
 // Add AI button event listeners
 const flashcardsBtn = document.getElementById('generateFlashcards');
 const questionsBtn = document.getElementById('generateQuestions');
 const summaryBtn = document.getElementById('generateSummary');
+
+const AIStatusElement = document.getElementById('status');
+
+if (AIStatusElement) {
+  AIStatusElement.textContent = "AI not Ready";
+}
+initializeAI();
 
 // Add message event listeners
 chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'sidepanelCommand') {
 
         if (message.command === "Generate Summary") {
-            generateSummary(message.selectedText)
+            handleSummaryEvent(message.selectedText)
         }
         if (message.command === "Generate Flashcards") {
-            generateFlashcards(message.selectedText)
+            handleFlashcardsEvent(message.selectedText)
         }
         if (message.command === "Generate Questions") {
-            generateQuestions(message.selectedText)
+          handleQuestionsEvent(message.selectedText)
         }
         if (message.command === "updateSidepanelSelectedText") {
             selectedText = message.selectedText
@@ -66,25 +76,78 @@ function downloadContent(): void {
 
 // Event listeners for AI buttons
 if (flashcardsBtn) {
-    flashcardsBtn.addEventListener('click', () => {
-        if (!selectedText) return;
-        generateFlashcards(selectedText)
-    });
+    flashcardsBtn.addEventListener('click', () => handleFlashcardsEvent(selectedText));
 }
 if (questionsBtn) {
-    questionsBtn.addEventListener('click', () => {
-        if (!selectedText) return;
-        generateQuestions(selectedText)
-    });
+    questionsBtn.addEventListener('click', () => handleQuestionsEvent(selectedText));
 }
 if (summaryBtn) {
-    summaryBtn.addEventListener('click', () => {
-        if (!selectedText) return;
-        generateSummary(selectedText)
-    });
+    summaryBtn.addEventListener('click', () => handleSummaryEvent(selectedText));
+}
+
+// Functions to handle AI events
+async function initializeAI() {
+  isSummariserReady = await initSummariser().catch((error: any) => {
+    showError("Failed to initialize AI Summariser: " + error.message);
+  });
+  isAIReady = await initAI().catch((error: any) => {
+    showError("Failed to initialize AI: " + error.message);
+  });
+  if ((isSummariserReady === true) && (isAIReady === true)) {
+    if (AIStatusElement) {
+      AIStatusElement.textContent = "AI Ready";
+    }
+  } else {
+      if (AIStatusElement) {
+        AIStatusElement.textContent = "Problem with AI";
+      }
+  }
+}
+async function handleSummaryEvent(textForSummary: string | null = null) {
+  showLoading(); 
+    try {
+      if (!textForSummary) throw Error("Please enter some study material");
+      const stream = generateSummary(textForSummary)
+      let result = '';
+      let previousChunk = '';
+
+      for await (const chunk of await stream) {
+        const newChunk = chunk.startsWith(previousChunk)
+        ? chunk.slice(previousChunk.length) : chunk;
+        console.log(newChunk);
+        result += newChunk;
+        previousChunk = chunk;
+        displaySummary(result);
+      }
+
+    } catch (error: any) {
+      showError("Failed to generate summary: " +error.message);
+    }
+}
+async function handleFlashcardsEvent(textForFlashcards: string | null = null) {
+  showLoading();
+  try {
+    if (!textForFlashcards) throw Error("Please enter some study material");
+    const flashcards = await generateFlashcards(textForFlashcards)
+    displayFlashcards(flashcards)
+  } catch (error: any) {
+    showError("Failed to generate flashcards: " + error.message);
+  }
+}
+async function handleQuestionsEvent(textForQuestions: string | null = null) {
+  showLoading();
+  try {
+    if (!textForQuestions) throw Error("Please enter some study material");
+    const questions = await generateQuestions(textForQuestions)
+    displayQuestions(questions)
+  } catch (error: any) {
+    showError("Failed to generate questions: " + error.message);
+  }
 }
 
 // Timer section
+
+// Global variables
 let isTimerExpanded = false;
 
 const timerPreview = document.getElementById('timer-preview');

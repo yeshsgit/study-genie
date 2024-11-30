@@ -172,7 +172,9 @@ h1 {
 
 .flashcard-navigation button:hover:not(:disabled) {
   background: #0056b3;
+  transform: scale(1.05);
 }
+
 
 .flashcard-download {
   max-width: fit-content;
