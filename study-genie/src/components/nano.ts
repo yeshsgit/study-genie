@@ -113,7 +113,7 @@ async function generateQuestions(text: string): Promise<any[]>  {
         "answer": "DOM APIs can be used to create web content and applications."
       }
     ]
-    
+
     REMEMBER you must only return a list of json objects, nothing else.
     
     Now, create 3 practice questions based on this text:
