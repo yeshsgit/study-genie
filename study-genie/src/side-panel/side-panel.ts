@@ -1,5 +1,5 @@
 import { initAI, initSummariser, generateSummary, generateFlashcards, generateQuestions } from '../components/nano.ts';
-import { showError, showLoading, displaySummary, displayFlashcards, displayQuestions } from './update-ui.ts';
+import { showError, showLoading, displaySummary, displayFlashcards, displayQuestions, createMessageBubble } from './update-ui.ts';
 
 // Global variables
 let isSummariserReady: boolean | void = false;
@@ -11,6 +11,8 @@ const flashcardsBtn = document.getElementById('generateFlashcards');
 const questionsBtn = document.getElementById('generateQuestions');
 const summaryBtn = document.getElementById('generateSummary');
 
+const chatContainer = document.getElementById('chat-container') as HTMLElement;
+const inputTextElement = document.getElementById('studyText') as HTMLTextAreaElement;
 const AIStatusElement = document.getElementById('status');
 
 if (AIStatusElement) {
@@ -23,13 +25,40 @@ chrome.runtime.onMessage.addListener((message) => {
     if (message.type === 'sidepanelCommand') {
 
         if (message.command === "Generate Summary") {
-            handleSummaryEvent(message.selectedText)
+          let textInput = inputTextElement?.value.trim();
+          let inputText: any = "";
+          if (textInput !== "") {
+            inputText = `${textInput.trim()}`;
+          }
+          if (message.selectedText !== null) {
+            inputText += ` ${message.selectedText.trim()}`;
+          }
+          handleSummaryEvent(inputText);
+          inputTextElement.value = "";
         }
         if (message.command === "Generate Flashcards") {
-            handleFlashcardsEvent(message.selectedText)
+          let textInput = inputTextElement?.value.trim();
+          let inputText: any = "";
+          if (textInput !== "") {
+            inputText = `${textInput.trim()}`;
+          }
+          if (message.selectedText !== null) {
+            inputText += ` ${message.selectedText.trim()}`;
+          }
+          handleFlashcardsEvent(inputText);
+          inputTextElement.value = "";
         }
         if (message.command === "Generate Questions") {
-          handleQuestionsEvent(message.selectedText)
+          let textInput = inputTextElement?.value.trim();
+          let inputText: any = "";
+          if (textInput !== "") {
+            inputText = `${textInput.trim()}`;
+          }
+          if (message.selectedText !== null) {
+            inputText += ` ${message.selectedText.trim()}`;
+          }
+          handleQuestionsEvent(inputText);
+          inputTextElement.value = "";
         }
         if (message.command === "updateSidepanelSelectedText") {
             selectedText = message.selectedText
@@ -38,51 +67,48 @@ chrome.runtime.onMessage.addListener((message) => {
     }
 });
 
-const downloadButton = document.getElementById('downloadButton') as HTMLButtonElement | null;
-
-if (downloadButton) {
-  downloadButton.addEventListener('click', downloadContent);
-}
-// Function to download the content
-function downloadContent(): void {
-  const resultDiv = document.getElementById('results') as HTMLElement | null;
-  if (!resultDiv) {
-    alert('Result div not found!');
-    return;
-  }
-  const content = resultDiv.textContent || resultDiv.innerText;
-  if (!content.trim()) {
-    alert('No content available to download!');
-    return;
-  }
-  // Get the current date and time
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[:.]/g, '-'); // Format timestamp
-  // Create a blob with the content
-  const blob = new Blob([content], { type: 'text/plain' });
-  const url = URL.createObjectURL(blob);
-  // Create a temporary anchor element
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `flashcards_${timestamp}.txt`;
-  // Trigger the download
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  // Revoke the object URL
-  URL.revokeObjectURL(url);
-}
-
-
 // Event listeners for AI buttons
 if (flashcardsBtn) {
-    flashcardsBtn.addEventListener('click', () => handleFlashcardsEvent(selectedText));
+  flashcardsBtn.addEventListener('click', () => {
+    let textInput = inputTextElement?.value.trim();
+    let inputText: any = "";
+    if (textInput !== "") {
+      inputText = `${textInput.trim()}`;
+    }
+    if (selectedText !== null) {
+      inputText += ` ${selectedText.trim()}`;
+    }
+    handleFlashcardsEvent(inputText);
+    inputTextElement.value = "";
+  });
 }
 if (questionsBtn) {
-    questionsBtn.addEventListener('click', () => handleQuestionsEvent(selectedText));
+  questionsBtn.addEventListener('click', () => {
+    let textInput = inputTextElement?.value.trim();
+    let inputText: any = "";
+    if (textInput !== "") {
+      inputText = `${textInput.trim()}`;
+    }
+    if (selectedText !== null) {
+      inputText += ` ${selectedText.trim()}`;
+    }
+    handleQuestionsEvent(inputText);
+    inputTextElement.value = "";
+  });
 }
 if (summaryBtn) {
-    summaryBtn.addEventListener('click', () => handleSummaryEvent(selectedText));
+  summaryBtn.addEventListener('click', () => {
+    let textInput = inputTextElement?.value.trim();
+    let inputText: any = "";
+    if (textInput !== "") {
+      inputText = `${textInput.trim()}`;
+    }
+    if (selectedText !== null) {
+      inputText += ` ${selectedText.trim()}`;
+    }
+    handleSummaryEvent(inputText);
+    inputTextElement.value = "";
+  });
 }
 
 // Functions to handle AI events
@@ -107,6 +133,9 @@ async function handleSummaryEvent(textForSummary: string | null = null) {
   showLoading(); 
     try {
       if (!textForSummary) throw Error("Please enter some study material");
+      const userBubble = createMessageBubble(textForSummary, true);
+      chatContainer.appendChild(userBubble);
+
       const stream = generateSummary(textForSummary)
       let result = '';
       let previousChunk = '';
@@ -117,8 +146,10 @@ async function handleSummaryEvent(textForSummary: string | null = null) {
         console.log(newChunk);
         result += newChunk;
         previousChunk = chunk;
-        displaySummary(result);
+        displaySummary(result, false);
       }
+      displaySummary(result, true);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
 
     } catch (error: any) {
       showError("Failed to generate summary: " +error.message);
@@ -128,8 +159,12 @@ async function handleFlashcardsEvent(textForFlashcards: string | null = null) {
   showLoading();
   try {
     if (!textForFlashcards) throw Error("Please enter some study material");
+    const userBubble = createMessageBubble(textForFlashcards, true);
+    chatContainer.appendChild(userBubble);
+
     const flashcards = await generateFlashcards(textForFlashcards)
     displayFlashcards(flashcards)
+    chatContainer.scrollTop = chatContainer.scrollHeight;
   } catch (error: any) {
     showError("Failed to generate flashcards: " + error.message);
   }
@@ -138,8 +173,12 @@ async function handleQuestionsEvent(textForQuestions: string | null = null) {
   showLoading();
   try {
     if (!textForQuestions) throw Error("Please enter some study material");
+    const userBubble = createMessageBubble(textForQuestions, true);
+    chatContainer.appendChild(userBubble);
+
     const questions = await generateQuestions(textForQuestions)
     displayQuestions(questions)
+    chatContainer.scrollTop = chatContainer.scrollHeight;
   } catch (error: any) {
     showError("Failed to generate questions: " + error.message);
   }
@@ -267,6 +306,7 @@ function showselectedText(selectedText: string) {
         const isTruncated = selectedText.length > maxLength;
         const truncatedText = selectedText.slice(0, maxLength);
 
+        selectedTextDiv.style.display = 'block';
         selectedTextDiv.innerHTML = `
             <div class="loading">
                 Text you have selected: 
@@ -298,5 +338,6 @@ function showselectedText(selectedText: string) {
         }
     } else {
         selectedTextDiv.innerHTML = `<div></div>`;
+        selectedTextDiv.style.display = 'none';
     }
 }
