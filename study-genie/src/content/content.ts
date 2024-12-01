@@ -173,13 +173,6 @@ class SelectionPopup {
                 console.log("Response:", response);
             }
         });
-
-        // Receive message from sidebar to close popup
-        // chrome.runtime.onMessage.addListener((message) => {
-        //     if (message.type === "contentScriptCommand") {
-        //         this.removePopup()
-        //     }
-        // })
     }
 
     private showDropdown() {
@@ -211,7 +204,130 @@ class SelectionPopup {
     }
 }
 
-// Initialize the selection popup
+function extractVisibleText(): string {
+    // Elements that typically contain main content
+    const contentSelectors = [
+        'article',
+        '[role="main"]',
+        'main',
+        '.main-content',
+        '#main-content',
+        '.post-content',
+        '.article-content',
+        '.content'
+    ];
+
+    // Elements to exclude
+    const excludeSelectors = [
+        'nav',
+        'header',
+        'footer',
+        'cite',
+        '#header',
+        '#footer',
+        '.nav',
+        '.navigation',
+        '.menu',
+        '.sidebar',
+        '[role="navigation"]',
+        '[role="complementary"]',
+        '.reference',
+        'sup.reference',
+        '[class*="nav"]'
+    ];
+
+    // Try to find main content container first
+    let mainContent: Element | null = null;
+    for (const selector of contentSelectors) {
+        const element = document.querySelector(selector);
+        if (element) {
+            mainContent = element;
+            break;
+        }
+    }
+
+    // If no main content container found, use body
+    const contentContainer = mainContent || document.body;
+
+    // Create a clone to modify
+    const clonedContent = contentContainer.cloneNode(true) as HTMLElement;
+
+    // Remove excluded elements from the clone
+    excludeSelectors.forEach(selector => {
+        const elements = clonedContent.querySelectorAll(selector);
+        elements.forEach(el => el.remove());
+    });
+
+    // Function to get all text content from an element
+    function getElementText(element: Element): string {
+        // Skip if element is hidden
+        const style = window.getComputedStyle(element);
+        if (style.display === 'none' || style.visibility === 'hidden') {
+            return '';
+        }
+
+        // Get text content including nested elements
+        let text = '';
+        element.childNodes.forEach(node => {
+            if (node.nodeType === Node.TEXT_NODE) {
+                const nodeText = node.textContent?.trim() || '';
+                if (nodeText) text += nodeText + ' ';
+            } else if (node.nodeType === Node.ELEMENT_NODE) {
+                // Skip if it's a reference or footnote
+                const el = node as Element;
+                if (!el.classList.contains('reference') && !el.matches('sup.reference')) {
+                    text += getElementText(el as Element) + ' ';
+                }
+            }
+        });
+        return text.trim();
+    }
+
+    // Extract text from paragraphs and other content elements
+    const textElements = clonedContent.querySelectorAll('p, li, article, section, span');
+    const textContent: string[] = [];
+
+    textElements.forEach(element => {
+        const text = getElementText(element);
+        if (text.length > 20) { // Only keep meaningful text chunks
+            textContent.push(text);
+        }
+    });
+
+    return textContent.join('\n\n').trim() || '';
+}
+
+function getPageText() {
+    chrome.storage.local.get(["isGlossaryActive"], (res) => {
+        if (res.isGlossaryActive === true) {
+            console.log("Glossary active")
+            let text = extractVisibleText();
+            console.log(text.substring(0, 2000));
+            chrome.runtime.sendMessage({
+                type: 'genGlossary',
+                text: text.substring(0, 2000)
+            }, (response) => {
+                if (chrome.runtime.lastError) {
+                    console.error("Error sending message:", chrome.runtime.lastError);
+                } else {
+                    console.log("Response:", response);
+                }
+            });
+        } else {
+            console.log("Glossary not active")
+        }
+    });
+}
+
+// Initialize the selection popup and run the getPageText function on start
 new SelectionPopup();
+getPageText();
+
+chrome.runtime.onMessage.addListener((message) => {
+    if (message.type === "getPageText") {
+        console.log("Getting page text")
+        getPageText();
+    }
+});
 
 console.log('Selection popup script loaded');

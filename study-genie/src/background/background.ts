@@ -54,7 +54,20 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
             sendResponse({ response: `Highlighted text updated to: ${message.selectedText}` });
         }
     }
+
+    if (message.type === 'genGlossary') {
+        sendResponse({ response: `Generating Glossary` });
+        console.log(message.text)
+    }
+
     return true;
+});
+
+// Initialise Glossary state
+chrome.storage.local.get(["isGlossaryActive"], (res) => {
+    chrome.storage.local.set({
+        isGlossaryActive: res.isGlossaryActive || false,
+    });
 });
 
 // Timer functionality

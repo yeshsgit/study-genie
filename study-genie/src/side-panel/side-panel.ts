@@ -10,6 +10,7 @@ let selectedText: string | null = null;
 const flashcardsBtn = document.getElementById('generateFlashcards');
 const questionsBtn = document.getElementById('generateQuestions');
 const summaryBtn = document.getElementById('generateSummary');
+const glossaryToggle = document.getElementById('toggleGlossary') as HTMLInputElement;
 
 const chatContainer = document.getElementById('chat-container') as HTMLElement;
 const inputTextElement = document.getElementById('studyText') as HTMLTextAreaElement;
@@ -19,6 +20,12 @@ if (AIStatusElement) {
   AIStatusElement.textContent = "AI not Ready";
 }
 initializeAI();
+
+if (glossaryToggle) {
+  chrome.storage.local.get(["isGlossaryActive"], (res) => {
+    glossaryToggle.checked = res.isGlossaryActive === true;
+  });
+}
 
 // Add message event listeners
 chrome.runtime.onMessage.addListener((message) => {
@@ -108,6 +115,17 @@ if (summaryBtn) {
     }
     handleSummaryEvent(inputText);
     inputTextElement.value = "";
+  });
+}
+if (glossaryToggle) {
+  glossaryToggle.addEventListener('change', () => {
+    if (glossaryToggle.checked) {
+        chrome.storage.local.set({isGlossaryActive: true});
+        chrome.runtime.sendMessage({ type: 'getPageText'});
+    } else {
+        chrome.storage.local.set({isGlossaryActive: false});
+        chrome.runtime.sendMessage({ type: 'getPageText'});
+    }
   });
 }
 
