@@ -1,12 +1,21 @@
+const chatContainer = document.getElementById('chat-container') as HTMLElement;
+let resultCounter = 0;
+
 /**
  * [Displays loading message in the side panel]
  * @returns {void}
  */
 function showLoading(): void {
-  const resultsDiv = document.getElementById('results');
-  if (!resultsDiv) return;
-  
-  resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
+  if (!resultsDiv) {
+    const resultsDiv = document.createElement('div');
+    resultsDiv.id = `results-${resultCounter}`;
+    resultsDiv.className = 'bot-bubble';
+    resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
+    chatContainer.appendChild(resultsDiv);
+  } else {
+    resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
+  }
 }
 
 
@@ -15,20 +24,26 @@ function showLoading(): void {
  * @param {string} message [Error message]
  * @returns {void}
  */
+let errorTimeout: NodeJS.Timeout | undefined;
 function showError(message: string): void {
     const errorDiv = document.getElementById('error');
     if (!errorDiv) return;
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-    
-    resultsDiv.innerHTML = '<div class="selectedText"></div>';
+    const resultsDiv = document.getElementById(`results-${resultCounter}`);
+    if (resultsDiv) {
+      resultsDiv.innerHTML = '<div class="selectedText"></div>';
+      resultsDiv.style.display = 'none';
+    };
     
     errorDiv.style.display = 'block';
     errorDiv.textContent = message;
-    setTimeout(() => {
+    if (errorTimeout !== undefined) {
+      clearTimeout(errorTimeout);
+    }
+    errorTimeout = setTimeout(() => {
       if (errorDiv) {
         errorDiv.style.display = 'none';
       }
+      errorTimeout = undefined; // Clear the stored ID after timeout executes
     }, 5000);
   }
 
@@ -37,15 +52,32 @@ function showError(message: string): void {
  * @param {string} summary 
  * @returns {void}
  */
-function displaySummary(summary: string): void {
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-
-    resultsDiv.innerHTML = `
-      <div class="summary">
-      <span style="display:block" class="note">${summary}</span>
-      </div>
-    `;
+function displaySummary(summary: string, isFinal: boolean): void {
+  if (isFinal !== true) {
+    const resultsDiv = document.getElementById(`results-${resultCounter}`);
+    if (!resultsDiv) {
+      const resultsDiv = document.createElement('div');
+      resultsDiv.id = `results-${resultCounter}`;
+      resultsDiv.className = 'bot-bubble';
+      resultsDiv.innerHTML = `
+        <div class="summary">
+        <span style="display:block" class="note">${summary}</span>
+        </div>
+      `;
+      chatContainer.appendChild(resultsDiv);
+    } else {
+      resultsDiv.innerHTML = `
+        <div class="summary">
+        <span style="display:block" class="note">${summary}</span>
+        </div>
+      `;
+      chatContainer.appendChild(resultsDiv);
+    }
+    
+  } else {
+    resultCounter++;
+  }
+  
 }
 
 /**
@@ -54,18 +86,34 @@ function displaySummary(summary: string): void {
  * @returns {void}
  */
 function displayQuestions(questions: any[]): void {
-  const resultsDiv = document.getElementById('results');
-  if (!resultsDiv) return;
-  
-  resultsDiv.innerHTML = '';
-  questions.forEach((q, index) => {
-    resultsDiv.innerHTML += `
-      <div class="question">
-        <div class="q-text">${index + 1}. ${q.question}</div>
-        <div class="answer">${q.answer}</div>
-      </div>
-    `;
-  });
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
+  if (!resultsDiv) {
+    const resultsDiv = document.createElement("div");
+    resultsDiv.id = `results-${resultCounter}`;
+    resultsDiv.className = 'bot-bubble';
+    
+    resultsDiv.innerHTML = '';
+    questions.forEach((q, index) => {
+      resultsDiv.innerHTML += `
+        <div class="question">
+          <div class="q-text">${index + 1}. ${q.question}</div>
+          <div class="answer">${q.answer}</div>
+        </div>
+      `;
+    });
+    chatContainer.appendChild(resultsDiv);
+  } else{
+    resultsDiv.innerHTML = '';
+    questions.forEach((q, index) => {
+      resultsDiv.innerHTML += `
+        <div class="question">
+          <div class="q-text">${index + 1}. ${q.question}</div>
+          <div class="answer">${q.answer}</div>
+        </div>
+      `;
+    });
+  }
+  resultCounter++;
 }
 
 /**
@@ -74,12 +122,7 @@ function displayQuestions(questions: any[]): void {
  * @returns {void}
  */
 function displayFlashcards(flashcards: Record<string, string>[]): void {
-
-  const resultsDiv = document.getElementById("results");
-  if (!resultsDiv) return;
-
-  resultsDiv.innerHTML = ""; // Clear any existing content
-
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
   const flashcardArray = Object.entries(flashcards);
   let currentIndex = 0;
 
@@ -94,19 +137,20 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
         </div>
       </div>
       <div class="flashcard-navigation">
-        <button id="prevBtn" ${index === 0 ? "disabled" : ""}>
+        <button class="prevBtn" ${index === 0 ? "disabled" : ""}>
           <i class="fas fa-arrow-left"></i>
         </button>
         <span>${index + 1} / ${flashcardArray.length}</span>
-        <button id="nextBtn" ${
+        <button class="nextBtn" ${
           index === flashcardArray.length - 1 ? "disabled" : ""}>
           <i class="fas fa-arrow-right"></i>
         </button>
       </div>
       <div class="flashcard-download">
-        <button id="downloadBtn">Download</button>
+        <button class="downloadBtn">Download</button>
       </div>  
     `;
+    resultCounter++;
 
     // Add flipping functionality
     const flashcard = resultsDiv.querySelector(".flashcard");
@@ -117,9 +161,9 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
     }
 
     // Add navigation event listeners
-    const prevBtn = document.getElementById("prevBtn");
-    const nextBtn = document.getElementById("nextBtn");
-    const downloadBtn = document.getElementById("downloadBtn")
+    const prevBtn = resultsDiv.querySelector(".prevBtn");
+    const nextBtn = resultsDiv.querySelector(".nextBtn");
+    const downloadBtn = resultsDiv.querySelector(".downloadBtn");
     
     prevBtn?.addEventListener("click", () => {
       if (currentIndex > 0) {
@@ -139,7 +183,6 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
       downloadContent(flashcards)
     })
   }
-
   // Initialize with the first flashcard
   updateFlashcard(currentIndex);
 }
@@ -167,4 +210,12 @@ function downloadContent(flashcards: any): void {
   URL.revokeObjectURL(url);
 }
 
-export { showError, displaySummary, showLoading, displayFlashcards, displayQuestions };
+// Chatbot functions
+function createMessageBubble(content: string, isUser: boolean): HTMLElement {
+  const bubble = document.createElement('div');
+  bubble.className = isUser ? 'user-bubble' : 'bot-bubble';
+  bubble.textContent = content;
+  return bubble;
+}
+
+export { showError, displaySummary, showLoading, displayFlashcards, displayQuestions, createMessageBubble };
