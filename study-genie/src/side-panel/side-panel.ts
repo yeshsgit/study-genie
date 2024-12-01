@@ -130,11 +130,11 @@ async function initializeAI() {
   }
 }
 async function handleSummaryEvent(textForSummary: string | null = null) {
-  showLoading(); 
     try {
       if (!textForSummary) throw Error("Please enter some study material");
       const userBubble = createMessageBubble(textForSummary, true);
       chatContainer.appendChild(userBubble);
+      showLoading();
 
       const stream = generateSummary(textForSummary)
       let result = '';
@@ -156,11 +156,11 @@ async function handleSummaryEvent(textForSummary: string | null = null) {
     }
 }
 async function handleFlashcardsEvent(textForFlashcards: string | null = null) {
-  showLoading();
   try {
     if (!textForFlashcards) throw Error("Please enter some study material");
     const userBubble = createMessageBubble(textForFlashcards, true);
     chatContainer.appendChild(userBubble);
+    showLoading();
 
     const flashcards = await generateFlashcards(textForFlashcards)
     displayFlashcards(flashcards)
@@ -170,11 +170,11 @@ async function handleFlashcardsEvent(textForFlashcards: string | null = null) {
   }
 }
 async function handleQuestionsEvent(textForQuestions: string | null = null) {
-  showLoading();
   try {
     if (!textForQuestions) throw Error("Please enter some study material");
     const userBubble = createMessageBubble(textForQuestions, true);
     chatContainer.appendChild(userBubble);
+    showLoading();
 
     const questions = await generateQuestions(textForQuestions)
     displayQuestions(questions)

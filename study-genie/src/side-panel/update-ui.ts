@@ -6,10 +6,16 @@ let resultCounter = 0;
  * @returns {void}
  */
 function showLoading(): void {
-  const resultsDiv = document.getElementById('results');
-  if (!resultsDiv) return;
-  
-  resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
+  if (!resultsDiv) {
+    const resultsDiv = document.createElement('div');
+    resultsDiv.id = `results-${resultCounter}`;
+    resultsDiv.className = 'bot-bubble';
+    resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
+    chatContainer.appendChild(resultsDiv);
+  } else {
+    resultsDiv.innerHTML = '<div class="selectedText">Generating...</div>';
+  }
 }
 
 
@@ -22,10 +28,11 @@ let errorTimeout: NodeJS.Timeout | undefined;
 function showError(message: string): void {
     const errorDiv = document.getElementById('error');
     if (!errorDiv) return;
-    const resultsDiv = document.getElementById('results');
-    if (!resultsDiv) return;
-    
-    resultsDiv.innerHTML = '<div class="selectedText"></div>';
+    const resultsDiv = document.getElementById(`results-${resultCounter}`);
+    if (resultsDiv) {
+      resultsDiv.innerHTML = '<div class="selectedText"></div>';
+      resultsDiv.style.display = 'none';
+    };
     
     errorDiv.style.display = 'block';
     errorDiv.textContent = message;
@@ -79,21 +86,33 @@ function displaySummary(summary: string, isFinal: boolean): void {
  * @returns {void}
  */
 function displayQuestions(questions: any[]): void {
-  const resultsDiv = document.createElement("div");
-  resultsDiv.id = `results-${resultCounter}`;
-  resultsDiv.className = 'bot-bubble';
-  
-  resultsDiv.innerHTML = '';
-  questions.forEach((q, index) => {
-    resultsDiv.innerHTML += `
-      <div class="question">
-        <div class="q-text">${index + 1}. ${q.question}</div>
-        <div class="answer">${q.answer}</div>
-      </div>
-    `;
-  });
-
-  chatContainer.appendChild(resultsDiv);
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
+  if (!resultsDiv) {
+    const resultsDiv = document.createElement("div");
+    resultsDiv.id = `results-${resultCounter}`;
+    resultsDiv.className = 'bot-bubble';
+    
+    resultsDiv.innerHTML = '';
+    questions.forEach((q, index) => {
+      resultsDiv.innerHTML += `
+        <div class="question">
+          <div class="q-text">${index + 1}. ${q.question}</div>
+          <div class="answer">${q.answer}</div>
+        </div>
+      `;
+    });
+    chatContainer.appendChild(resultsDiv);
+  } else{
+    resultsDiv.innerHTML = '';
+    questions.forEach((q, index) => {
+      resultsDiv.innerHTML += `
+        <div class="question">
+          <div class="q-text">${index + 1}. ${q.question}</div>
+          <div class="answer">${q.answer}</div>
+        </div>
+      `;
+    });
+  }
   resultCounter++;
 }
 
@@ -103,10 +122,7 @@ function displayQuestions(questions: any[]): void {
  * @returns {void}
  */
 function displayFlashcards(flashcards: Record<string, string>[]): void {
-  const resultsDiv = document.createElement("div");
-  resultsDiv.className = 'bot-bubble';
-  resultsDiv.id = `results-${resultCounter}`;
-
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
   const flashcardArray = Object.entries(flashcards);
   let currentIndex = 0;
 
@@ -145,9 +161,6 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
     }
 
     // Add navigation event listeners
-    // const prevBtn = document.getElementById("prevBtn");
-    // const nextBtn = document.getElementById("nextBtn");
-    // const downloadBtn = document.getElementById("downloadBtn")
     const prevBtn = resultsDiv.querySelector(".prevBtn");
     const nextBtn = resultsDiv.querySelector(".nextBtn");
     const downloadBtn = resultsDiv.querySelector(".downloadBtn");
@@ -170,7 +183,6 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
       downloadContent(flashcards)
     })
   }
-  chatContainer.appendChild(resultsDiv);
   // Initialize with the first flashcard
   updateFlashcard(currentIndex);
 }
