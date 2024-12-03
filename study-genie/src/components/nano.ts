@@ -4,19 +4,29 @@ import dedent from "dedent";
 let aiSession: any = null;
 let aiSummariser: any = null;
 
-async function initAI(): Promise<boolean> {
+async function initAI(systemPrompt: string | null = null, temporary: boolean = false): Promise<AILanguageModel | boolean> {
   try {
     const { available } = await window.ai.languageModel.capabilities();
     if (available === "no") {
       throw Error("AI model is not available on this device");
     }
 
-    aiSession = await window.ai.languageModel.create({
-      systemPrompt: `You are an expert tutor helping students study effectively. 
+    const defaultSystemPrompt = `You are an expert tutor helping students study effectively. 
       You can create flashcards, practice questions, and summaries from study material.
       Always be concise and focus on key concepts.`
+    systemPrompt = systemPrompt || defaultSystemPrompt
+
+    if (temporary === true) {
+      const tempAISession = await window.ai.languageModel.create({
+        systemPrompt: systemPrompt
+      });
+      return tempAISession;
+    }
+
+    aiSession = await window.ai.languageModel.create({
+      systemPrompt: systemPrompt
     });
-    
+
     const statusElement = document.getElementById('status');
     if (statusElement) {
       statusElement.textContent = "AI Ready";
@@ -27,7 +37,7 @@ async function initAI(): Promise<boolean> {
   }
 }
 
-async function initSummariser(): Promise<boolean>  {
+async function initSummariser(): Promise<boolean> {
   try {
     const { available } = await window.ai.summarizer.capabilities();
     if (available === "no") {
@@ -44,9 +54,9 @@ async function initSummariser(): Promise<boolean>  {
       1. Content is factually inaccurate
       2. Content does not contain any details to summarise
       Then reply with 'Cannot generate summary due to <reason for not generating summary>'`,
-      
+
     });
-    
+
     const statusElement = document.getElementById('status');
     if (statusElement) {
       statusElement.textContent = "AI Summariser Ready";
@@ -57,12 +67,12 @@ async function initSummariser(): Promise<boolean>  {
   }
 }
 
-async function generateFlashcards(text: string): Promise<Record<string, string>[]>  {
+async function generateFlashcards(text: string): Promise<Record<string, string>[]> {
   try {
     if (!text) {
       throw Error("Please enter some study material");
     }
-  
+
     const prompt = dedent`Your goal is to generate 5 concise flashcards from the provided text.
     Format each flashcard as a dictionary where the key is the "front" (containing a question or keyword) and the value is the "back" (containing a brief answer or definition). 
     Output all flashcards as a dictionary of key-value pairs.
@@ -87,12 +97,12 @@ async function generateFlashcards(text: string): Promise<Record<string, string>[
   }
 }
 
-async function generateQuestions(text: string): Promise<any[]>  {
+async function generateQuestions(text: string): Promise<any[]> {
   try {
     if (!text) {
       throw Error("Please enter some study material");
     }
-  
+
     const prompt = dedent`Your goal is to generate 3 practice questions from the provided text.
     Format each question as a JSON object with two properties: "question" (containing a question) and "answer" (containing a brief answer). 
     Output all question as a list of JSON objects.
@@ -126,12 +136,12 @@ async function generateQuestions(text: string): Promise<any[]>  {
   }
 }
 
-async function generateSummary(text: string): Promise<AsyncIterable<string>>  {
+async function generateSummary(text: string): Promise<AsyncIterable<string>> {
   try {
     if (!text) {
       throw Error("Please enter some study material");
     }
-  
+
     const prompt = `Generate a concise and factual summary of the key points from this material:
     ${text}`;
 

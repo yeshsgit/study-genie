@@ -26,26 +26,26 @@ function showLoading(): void {
  */
 let errorTimeout: NodeJS.Timeout | undefined;
 function showError(message: string): void {
-    const errorDiv = document.getElementById('error');
-    if (!errorDiv) return;
-    const resultsDiv = document.getElementById(`results-${resultCounter}`);
-    if (resultsDiv) {
-      resultsDiv.innerHTML = '<div class="selectedText"></div>';
-      resultsDiv.style.display = 'none';
-    };
-    
-    errorDiv.style.display = 'block';
-    errorDiv.textContent = message;
-    if (errorTimeout !== undefined) {
-      clearTimeout(errorTimeout);
-    }
-    errorTimeout = setTimeout(() => {
-      if (errorDiv) {
-        errorDiv.style.display = 'none';
-      }
-      errorTimeout = undefined; // Clear the stored ID after timeout executes
-    }, 5000);
+  const errorDiv = document.getElementById('error');
+  if (!errorDiv) return;
+  const resultsDiv = document.getElementById(`results-${resultCounter}`);
+  if (resultsDiv) {
+    resultsDiv.innerHTML = '<div class="selectedText"></div>';
+    resultsDiv.style.display = 'none';
+  };
+
+  errorDiv.style.display = 'block';
+  errorDiv.textContent = message;
+  if (errorTimeout !== undefined) {
+    clearTimeout(errorTimeout);
   }
+  errorTimeout = setTimeout(() => {
+    if (errorDiv) {
+      errorDiv.style.display = 'none';
+    }
+    errorTimeout = undefined; // Clear the stored ID after timeout executes
+  }, 5000);
+}
 
 /**
  * [Displays summary in the side panel]
@@ -73,11 +73,11 @@ function displaySummary(summary: string, isFinal: boolean): void {
       `;
       chatContainer.appendChild(resultsDiv);
     }
-    
+
   } else {
     resultCounter++;
   }
-  
+
 }
 
 /**
@@ -91,7 +91,7 @@ function displayQuestions(questions: any[]): void {
     const resultsDiv = document.createElement("div");
     resultsDiv.id = `results-${resultCounter}`;
     resultsDiv.className = 'bot-bubble';
-    
+
     resultsDiv.innerHTML = '';
     questions.forEach((q, index) => {
       resultsDiv.innerHTML += `
@@ -102,7 +102,7 @@ function displayQuestions(questions: any[]): void {
       `;
     });
     chatContainer.appendChild(resultsDiv);
-  } else{
+  } else {
     resultsDiv.innerHTML = '';
     questions.forEach((q, index) => {
       resultsDiv.innerHTML += `
@@ -141,8 +141,7 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
           <i class="fas fa-arrow-left"></i>
         </button>
         <span>${index + 1} / ${flashcardArray.length}</span>
-        <button class="nextBtn" ${
-          index === flashcardArray.length - 1 ? "disabled" : ""}>
+        <button class="nextBtn" ${index === flashcardArray.length - 1 ? "disabled" : ""}>
           <i class="fas fa-arrow-right"></i>
         </button>
       </div>
@@ -164,7 +163,7 @@ function displayFlashcards(flashcards: Record<string, string>[]): void {
     const prevBtn = resultsDiv.querySelector(".prevBtn");
     const nextBtn = resultsDiv.querySelector(".nextBtn");
     const downloadBtn = resultsDiv.querySelector(".downloadBtn");
-    
+
     prevBtn?.addEventListener("click", () => {
       if (currentIndex > 0) {
         currentIndex--;
