@@ -1,0 +1,63 @@
+/* Highlighted difficult words */
+.difficult-word {
+    color: blue;
+    font-weight: bold;
+    text-decoration: underline;
+    cursor: pointer;
+    position: relative;
+}
+
+/* Tooltip for word definitions */
+.word-tooltip {
+    position: absolute;
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 8px;
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    color: #333;
+    max-width: 300px;
+    z-index: 1000;
+    display: none; /* Initially hidden */
+}
+
+/* Show tooltip when hovering over a word */
+.difficult-word:hover .word-tooltip {
+    display: block;
+    top: 100%; /* Position below the word */
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    white-space: normal;
+    text-align: left;
+}
+
+/* Button to trigger definitions */
+#generate-definitions-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: #ffffff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+/* Button hover effect */
+#generate-definitions-button:hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+/* Button active effect */
+#generate-definitions-button:active {
+    background-color: #003f7f;
+    transform: scale(0.95);
+}
