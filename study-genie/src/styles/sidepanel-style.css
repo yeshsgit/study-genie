@@ -65,7 +65,8 @@ h1 {
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     font-size: 14px;
-    max-height: 300px; /* For scrollable content */
+    height: 300px;
+    resize: vertical;
     overflow-y: auto;
 }
 
@@ -227,7 +228,10 @@ h1 {
   margin-left: auto;
   margin-right: auto;
   width: 90%;
-  height: 350px;
+  min-height: 250px;
+  max-height: 80vh;
+  height: 300px;
+  resize: vertical;
   border: 1px solid #ccc;
   border-radius: 5px;
   padding: 10px;
@@ -366,7 +370,7 @@ input:checked + .slider:after {
     font-size: 40px;
     font-weight: bold;
     color: #000000;
-    margin-bottom: 24px;
+    margin-bottom: 16px;
     
   }
 
@@ -377,6 +381,60 @@ input:checked + .slider:after {
     margin-right: auto;
     margin-bottom: 10px;
   }
+
+/* Markdown Styles */
+.note {
+  line-height: 1.6;
+}
+
+.note h1, .note h2, .note h3, .note h4, .note h5, .note h6 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+
+.note p {
+  margin-bottom: 1em;
+}
+
+.note ul, .note ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.note li {
+  margin-bottom: 0.5em;
+}
+
+.note code {
+  background-color: #f0f0f0;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+}
+
+.note pre {
+  background-color: #f0f0f0;
+  padding: 1em;
+  border-radius: 5px;
+  overflow-x: auto;
+}
+
+.note blockquote {
+  border-left: 4px solid #ddd;
+  padding-left: 1em;
+  margin-left: 0;
+  color: #666;
+}
+
+.note a {
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.note a:hover {
+  text-decoration: underline;
+}
 
 /* Responsive Design */
 @media (max-width: 600px) {

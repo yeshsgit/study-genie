@@ -31,7 +31,7 @@ if (glossaryToggle) {
 chrome.runtime.onMessage.addListener((message) => {
   if (message.type === 'sidepanelCommand') {
 
-    if (message.command === "Generate Summary") {
+    if (message.command === "Generate Notes") {
       let textInput = inputTextElement?.value.trim();
       let inputText: any = "";
       if (textInput !== "") {
@@ -118,13 +118,14 @@ if (summaryBtn) {
   });
 }
 if (glossaryToggle) {
-  glossaryToggle.addEventListener('change', () => {
+  glossaryToggle.addEventListener('change', async () => {
     if (glossaryToggle.checked) {
-      chrome.storage.local.set({ isGlossaryActive: true });
-      chrome.runtime.sendMessage({ type: 'getPageText' });
+      await chrome.storage.local.set({ isGlossaryActive: true });
+      setTimeout(() => {
+        chrome.runtime.sendMessage({ type: 'activateGlossary' });
+      }, 500);
     } else {
-      chrome.storage.local.set({ isGlossaryActive: false });
-      chrome.runtime.sendMessage({ type: 'getPageText' });
+      await chrome.storage.local.set({ isGlossaryActive: false });
     }
   });
 }

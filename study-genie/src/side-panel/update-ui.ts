@@ -1,3 +1,5 @@
+import { marked } from 'marked';
+
 const chatContainer = document.getElementById('chat-container') as HTMLElement;
 let resultCounter = 0;
 
@@ -55,20 +57,21 @@ function showError(message: string): void {
 function displaySummary(summary: string, isFinal: boolean): void {
   if (isFinal !== true) {
     const resultsDiv = document.getElementById(`results-${resultCounter}`);
+    const parsedSummary = marked(summary);
     if (!resultsDiv) {
       const resultsDiv = document.createElement('div');
       resultsDiv.id = `results-${resultCounter}`;
       resultsDiv.className = 'bot-bubble';
       resultsDiv.innerHTML = `
         <div class="summary">
-        <span style="display:block" class="note">${summary}</span>
+        <span style="display:block" class="note">${parsedSummary}</span>
         </div>
       `;
       chatContainer.appendChild(resultsDiv);
     } else {
       resultsDiv.innerHTML = `
         <div class="summary">
-        <span style="display:block" class="note">${summary}</span>
+        <span style="display:block" class="note">${parsedSummary}</span>
         </div>
       `;
       chatContainer.appendChild(resultsDiv);
@@ -77,7 +80,6 @@ function displaySummary(summary: string, isFinal: boolean): void {
   } else {
     resultCounter++;
   }
-
 }
 
 /**

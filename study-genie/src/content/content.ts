@@ -254,7 +254,7 @@ class SelectionPopup {
     this.dropdownContent.className = 'sg-dropdown-content';
 
     // Dropdown items
-    const items = ['Generate Flashcards', 'Generate Questions', 'Generate Summary'];
+    const items = ['Generate Flashcards', 'Generate Questions', 'Generate Notes'];
     items.forEach(item => {
       const dropdownItem = document.createElement('div');
       dropdownItem.className = 'sg-dropdown-item';
@@ -470,6 +470,8 @@ function extractVisibleText(): string {
   // Elements to exclude
   const excludeSelectors = [
     'nav',
+    'script',
+    'style',
     'header',
     'footer',
     'cite',
@@ -486,12 +488,16 @@ function extractVisibleText(): string {
     '[class*="nav"]'
   ];
 
+  let querySelectors = 'p, li, article, section, span';
+
   // Try to find main content container first
   let mainContent: Element | null = null;
   for (const selector of contentSelectors) {
     const element = document.querySelector(selector);
     if (element) {
       mainContent = element;
+      console.log(`Found main content container: ${selector}`);
+      querySelectors = 'p, li, article, section, span';
       break;
     }
   }
@@ -534,7 +540,7 @@ function extractVisibleText(): string {
   }
 
   // Extract text from paragraphs and other content elements
-  const textElements = clonedContent.querySelectorAll('p, li, article, section, span');
+  const textElements = clonedContent.querySelectorAll(querySelectors);
   const textContent: string[] = [];
 
   textElements.forEach(element => {
@@ -547,24 +553,15 @@ function extractVisibleText(): string {
   return textContent.join('\n\n').trim() || '';
 }
 
-async function getPageText(): Promise<string | null> {
-  return new Promise((resolve) => {
-    chrome.storage.local.get(["isGlossaryActive"], (res) => {
-      if (res.isGlossaryActive === true) {
-        const text = extractVisibleText();
-        console.log(`Extracted text: ${text.substring(0, 2000)}`);
-        resolve(text);
-      } else {
-        console.log("Glossary not active")
-        resolve(null);
-      }
-    });
-  });
+async function getPageText() {
+  const text = extractVisibleText();
+  console.log(`Extracted text: ${text.substring(0, 4000)}`);
+  return text;
 }
 
 async function generateGlossary(extractedText: string) {
   try {
-    const systemPrompt = `You are a precise and careful academic assistant. Your task is to analyze text and extract ONLY the most crucial technical terms and their definitions. Follow these strict rules:
+    const systemPrompt = `You are a precise and careful academic assistant. Your task is to analyze text and extract ONLY up to 15 of the most crucial technical terms and their definitions. Follow these strict rules:
 
 1. ONLY include terms that are:
     - Explicitly defined or explained in the text
@@ -588,7 +585,7 @@ async function generateGlossary(extractedText: string) {
 4. Quality Control:
     - Verify each term appears in the original text
     - Ensure definitions match the text's context
-    - Limit to maximum 10-15 most important terms
+    - Do not include more than 15 terms
     - When in doubt, exclude the term
 
 Remember: It's better to return fewer, high-quality entries than many low-quality ones.`
@@ -806,6 +803,17 @@ function injectGlossary(glossary: Record<string, string>) {
 
 // Initialize the selection popup and run the getPageText function on start
 new SelectionPopup();
-DynamicGlossary();
+chrome.storage.local.get(["isGlossaryActive"], async (res) => {
+  if (res.isGlossaryActive) {
+    await DynamicGlossary();
+  }
+});
 
 console.log('Selection popup script loaded');
+
+chrome.runtime.onMessage.addListener((event) => async () => {
+  if (event.action === 'ACTIVATE_GLOSSARY') {
+    console.log('Received message to activate glossary');
+    await DynamicGlossary();
+  }
+});

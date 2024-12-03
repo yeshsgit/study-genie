@@ -11,7 +11,7 @@ async function initAI(systemPrompt: string | null = null, temporary: boolean = f
       throw Error("AI model is not available on this device");
     }
 
-    const defaultSystemPrompt = `You are an expert tutor helping students study effectively. 
+    const defaultSystemPrompt = dedent`You are an expert tutor helping students study effectively. 
       You can create flashcards, practice questions, and summaries from study material.
       Always be concise and focus on key concepts.`
     systemPrompt = systemPrompt || defaultSystemPrompt
@@ -45,8 +45,7 @@ async function initSummariser(): Promise<boolean> {
     }
 
     aiSummariser = await window.ai.summarizer.create({
-      sharedContext: `You are an expert tutor helping students study effectively. 
-      Your goal is to condense the information you are given into high quality plain text summaries.
+      sharedContext: dedent`You are an assistant designed to analyze study material and generate concise, structured notes to aid in learning. Your role is to identify the key points, concepts, and important information from the provided text and present them in an organized format. Focus on clarity, brevity, and relevance, avoiding unnecessary details or repetitive information. Structure the notes logically, using headings, bullet points, or numbered lists as appropriate.
       You must use only the information provided in the given material.
       Do not hallucinate and do not make up facts, details or any other information.
       Always be concise and focus on key concepts.
@@ -142,8 +141,27 @@ async function generateSummary(text: string): Promise<AsyncIterable<string>> {
       throw Error("Please enter some study material");
     }
 
-    const prompt = `Generate a concise and factual summary of the key points from this material:
-    ${text}`;
+    const prompt = dedent`Analyze the following study material and generate CONSICE AND FACTUALLY ACCURATE, structured notes. Ensure the notes capture the key concepts, definitions, examples (if applicable), and important points, while avoiding unnecessary details. Use headings, bullet points, and clear formatting for easy understanding. Structure the output as follows:
+    # [Title or Topic of the Study Material]
+
+    ### [Heading or Key Concept 1]
+    - Point 1
+    - Point 2
+    - Example (if applicable)
+
+    ### [Heading or Key Concept 2]
+    - Point 1
+    - Point 2
+    - Example (if applicable)
+
+    ### [Additional Headings or Key Concepts]
+    - Point 1
+    - Point 2
+    - Example (if applicable)
+    ...
+    Make the notes comprehensive yet succinct, ensuring they are useful for study and revision purposes.
+    
+    Text:${text}`;
 
     const stream = await aiSummariser.summarizeStreaming(prompt);
     return stream;

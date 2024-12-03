@@ -54,6 +54,18 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       sendResponse({ response: `Highlighted text updated to: ${message.selectedText}` });
     }
   }
+
+  if (message.type === 'activateGlossary') {
+    console.log("Activating Glossary command received");
+    chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+      const activeTab =  tabs[0];
+      console.log(activeTab);
+      if (activeTab.id) {
+        console.log(`Activating Glossary on tab ${activeTab.id}`);
+        chrome.tabs.sendMessage(activeTab.id, { action: 'ACTIVATE_GLOSSARY' });
+      }
+    });
+  }
 });
 
 // Initialise Glossary state
