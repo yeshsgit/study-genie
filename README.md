@@ -1,19 +1,21 @@
 # Study Genie
 
 ## Set-up Instructions
+### Set up Chrome built in AI
+The setup instructions are in google docs sheets.<br>
+Navigate to the **Setup** section in each sheet and follow the instructions.<br>
+Ensure you are using [Chrome Dev](https://www.google.com/chrome/dev/)
+1. [Prompt API setup instructions](https://docs.google.com/document/d/1VG8HIyz361zGduWgNG7R_R8Xkv0OOJ8b5C9QKeCjU0c/edit?tab=t.0) <br>
+2. [Summarisation API setup instrctions](https://docs.google.com/document/d/1Bvd6cU9VIEb7kHTAOCtmmHNAYlIZdeNmV7Oy-2CtimA/edit?tab=t.0)<br>
+3. Got to `chrome://flags/#text-safety-classifier` and set to "Enabled Executes safety classifier but no retraction of output" (Avoids Untested Language Errors).
+### Set up Program
 1. Clone repository.
 2. Run `cd study-genie` to enter study genie directory.
 3. Run `npm i` to install dependencies.
 4. Build program into dist folder with `npm run build`.
-5. Install chrome dev `https://www.google.com/chrome/dev/?extra=devchannel`
-6. Open chrome and set the following flags:
-7. Go to `chrome://flags/#optimization-guide-on-device-model` and set
- to "Enabled BypassPerfRequirement"
-8. Go to `chrome://flags/#prompt-api-for-gemini-nano` and set to "Enabled".
-9. Go to `chrome://flags/#summarization-api-for-gemini-nano` and set to "Enabled".
-10. Got to `chrome://flags/#text-safety-classifier` and set to "Enabled Executes safety classifier but no retraction of output" (Avoids Untested Language Errors).
-11. Navigate to `chrome://extensions` and enable developer mode.
-12. Load Unpacked the dist folder that you created in step 4.
+5. Navigate to `chrome://extensions` and enable developer mode.
+6. Load Unpacked the dist folder that you created in step 4.
+
 
 ## How to use
 1. Once the Study Genie is set up you can pin it for easier access.
